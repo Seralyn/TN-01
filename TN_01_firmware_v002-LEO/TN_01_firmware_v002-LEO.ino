@@ -119,14 +119,14 @@ void loop() {
 
   unsigned long now = millis();
 
-  // display.setFont(&Roboto_Condensed_14);
-  display.setFont();
+  display.setFont(&Roboto_Condensed_14);
+  // display.setFont();
   display.setTextSize(1);
   display.setTextColor(SSD1306_WHITE);
   display.clearDisplay();
   display.setCursor(0,10);
   // display.print(gameName + "\ndetected.");
-  display.println("Train Sim World");*
+  display.println("Train Sim World");
   display.setCursor(0, 20);
   display.println("5 detected.");
 
@@ -178,14 +178,6 @@ void loop() {
     digitalWrite(bIPB_led, LOW);
   }
 
-  // Serial.print("mtlThrwState: ");
-  // Serial.println(mtlThrwState);
-
-  // Serial.print("Setting redLED to: ");
-  // Serial.println(mtlThrwState == LOW ? "LOW (OFF)" : "HIGH (ON)");
-
-  // Serial.print("Setting greenLED to: ");
-  // Serial.println(mtlThrwState == LOW ? "HIGH (ON)" : "LOW (OFF)");
 
   if (mtlThrwState == LOW) {
   Serial.println("Metal Switch ON");
