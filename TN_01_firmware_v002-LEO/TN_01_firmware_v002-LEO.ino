@@ -1,5 +1,38 @@
 #include <Wire.h>
+#include <Adafruit_GFX.h>
+#include <Adafruit_SSD1306.h>
+#include "Roboto_Condensed_14.h"
 #include <AS5600.h>
+
+// 'train-icon-old-locomotive-silhouette-symbol-sign-illustration-vector', 32x32px
+const unsigned char epd_bitmap_train_icon_old_locomotive_silhouette_symbol_sign_illustration_vector [] PROGMEM = {
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0x87, 0xff, 0xff, 0xff, 0x03, 0xff, 0xff, 
+	0xff, 0x87, 0xe0, 0x0f, 0xff, 0x87, 0xe0, 0x0f, 0xff, 0x87, 0xef, 0x6f, 0xff, 0x86, 0x6f, 0x6f, 
+	0xff, 0x86, 0x6f, 0x6f, 0xfe, 0x00, 0x0f, 0x6f, 0xfc, 0x00, 0x0f, 0x0f, 0xfc, 0x00, 0x0f, 0x0f, 
+	0xfc, 0x00, 0x00, 0x0f, 0xfc, 0x00, 0x00, 0x0f, 0xfe, 0x00, 0x00, 0x0f, 0xfc, 0x00, 0x00, 0x0f, 
+	0xfc, 0x00, 0x00, 0x07, 0xf8, 0x00, 0x00, 0x07, 0xf8, 0x00, 0x00, 0x07, 0xf0, 0x00, 0x00, 0x0f, 
+	0xf1, 0x04, 0x10, 0x3f, 0xff, 0x0e, 0x38, 0x3f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 
+	0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff
+};
+
+// Array of all bitmaps for convenience. (Total bytes used to store images in PROGMEM = 144)
+const int epd_bitmap_allArray_LEN = 1;
+const unsigned char* epd_bitmap_allArray[1] = {
+	epd_bitmap_train_icon_old_locomotive_silhouette_symbol_sign_illustration_vector
+};
+
+// declaring font and empty variable bucket for game names
+extern const GFXfont Roboto_Condensed_14;
+String gameName = "No game";
+
+//setting constraints for OLED
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 32
+#define OLED_RESET    -1  // No reset pin used on your display
+
+// Provide the I2C address directly, typically 0x3C for most displays
+Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 // AS5600 setup
 AS5600 encoder;
@@ -47,7 +80,12 @@ void setup() {
   digitalWrite(redLED, HIGH);   // Ensure red LED is on at boot
   digitalWrite(bIPB_led, LOW);  // Ensure big button LED is off
 
-
+  if(!display.begin(SSD1306_SWITCHCAPVCC, 0x3c)) {  // Use 0x3C or 0x3D based on your OLED
+    Serial.println("SSD1306 allocation failed");
+    for(;;);  // Don't proceed, loop forever
+  }
+  display.clearDisplay();
+  display.display();  // Initializes the display.
   
   if (!encoder.begin()) {
     Serial.println("AS5600 not detected. Check wiring.");
@@ -80,6 +118,22 @@ void loop() {
   
 
   unsigned long now = millis();
+
+  // display.setFont(&Roboto_Condensed_14);
+  display.setFont();
+  display.setTextSize(1);
+  display.setTextColor(SSD1306_WHITE);
+  display.clearDisplay();
+  display.setCursor(0,10);
+  // display.print(gameName + "\ndetected.");
+  display.println("Train Sim World");*
+  display.setCursor(0, 20);
+  display.println("5 detected.");
+
+// Draw the new train icon
+  display.drawBitmap(96, 0, epd_bitmap_train_icon_old_locomotive_silhouette_symbol_sign_illustration_vector, 32, 32, SSD1306_BLACK, SSD1306_WHITE);
+  display.display();
+  // delay(800);
 
   if (linPotValScaled != lastLinPotValScaled && (now - lastLinPotPrintTime >= 500)) {
     Serial.print("Linear Pot Value: ");
